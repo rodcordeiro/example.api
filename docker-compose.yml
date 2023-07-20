@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: grimmorium_api
+    restart: always
+    ports:
+      - '3333:80'
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: 80
+      ENC_SECRET: rod
+      JWT_SECRET: rodcordeiro
+      JWT_REFRESH_SECRET: rodcordeiro
+      JWT_EXPIRES: 1h
+
+      EMAIL: no-reply@koda.dev.br
+      PASSWORD: '@Lajbargf01'
+
+      GOOGLE_CLIENT_ID: 144021166720-2f5nga5iglhm2663a7eqqq1rjuqrbrij.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+
+      DB_HOST: sql542.main-hosting.eu
+      DB_PORT: 3306
+      DB_USER: u766359255_rod
+      DB_PWD: 'yA!4J*0Ik0'
+      DB_NAME: u766359255_rod
+
+    networks:
+      - app-network
+
+
+networks:
+  app-network:
+    driver: bridge
