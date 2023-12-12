@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { DataSourceOptions } from 'typeorm';
 
 const DB_CONFIG: DataSourceOptions = {
@@ -9,8 +10,8 @@ const DB_CONFIG: DataSourceOptions = {
   database: process.env.DB_NAME,
   migrations: [__dirname + '/core/database/migrations/{.ts,*.js}'],
   entities: [__dirname + '/modules/*/entities/*.entity.js'],
-  synchronize: false,
-  migrationsRun: true,
+  synchronize: true,
+  // migrationsRun: true,
   // debug: true,
 };
 

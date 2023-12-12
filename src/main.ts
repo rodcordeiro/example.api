@@ -8,11 +8,10 @@ import helmet from '@fastify/helmet';
 import compression from '@fastify/compress';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import fastifyCsrf from '@fastify/csrf-protection';
-import OauthPlugin from '@fastify/oauth2';
-import { version } from '../package.json';
 
 import { AppModule } from '@/app.module';
 import { AppUtils } from '@/common/utils/app.util';
+import { version } from '../package.json';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -27,36 +26,7 @@ async function bootstrap() {
       },
     }),
   );
-
-  app.register(OauthPlugin, {
-    name: 'googleOAuth2',
-    scope: ['profile email'],
-    credentials: {
-      client: {
-        id: process.env.GOOGLE_CLIENT_ID,
-        secret: process.env.GOOGLE_CLIENT_SECRET,
-      },
-      auth: OauthPlugin.GOOGLE_CONFIGURATION,
-    },
-    startRedirectPath: '/api/v1/auth/google',
-    callbackUri: `${process.env.HOST}:${process.env.PORT}/api/v1/auth/google/callback`,
-  });
-
-  app.register(OauthPlugin, {
-    name: 'googleOAuth2Mobile',
-    scope: ['profile email'],
-    credentials: {
-      client: {
-        id: process.env.GOOGLE_CLIENT_ID,
-        secret: process.env.GOOGLE_CLIENT_SECRET,
-      },
-      auth: OauthPlugin.GOOGLE_CONFIGURATION,
-    },
-    startRedirectPath: '/api/v1/auth/mobile/google',
-    callbackUri: `${process.env.HOST}:${process.env.PORT}/api/v1/auth/mobile/google/callback`,
-  });
   AppUtils.killAppWithGrace(app);
-
   /**
    * ------------------------------------------------------
    * Security
@@ -99,19 +69,10 @@ async function bootstrap() {
    * ------------------------------------------------------
    */
   const config = new DocumentBuilder()
-    .setTitle('Grimmorium')
-    .setDescription('Grimmorium RestAPI documentation and examples')
+    .setTitle('Escriba')
+    .setDescription('Escriba RestAPI documentation and examples')
     .setVersion(version)
-    .addSecurity('bearer', {
-      type: 'http',
-      scheme: 'basic',
-    })
-    .addTag('auth', 'Authentication related routes')
-    .addTag('user', 'User administration related routes')
-    .addTag('books', 'Books related routes')
-    .addTag('tags', 'Tag related routes')
-    .addTag('collections', 'Collection related routes')
-    .addTag('annotations', 'Annotations related routes')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

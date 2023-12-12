@@ -7,8 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 
 import { UsersEntity } from '@/modules/users/entities/users.entity';
-import { CreateUserDTO } from '@/modules/users/dto/create.dto';
 import { UpdateUserDTO } from '@/modules/users/dto/update.dto';
+import { CreateUserDTO } from '../dto/create.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,50 +16,23 @@ export class UsersService {
     @InjectRepository(UsersEntity)
     private readonly usersRepository: Repository<UsersEntity>,
   ) {}
-
   async findAll() {
     return await this.usersRepository.find({
-      select: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
+      select: ['id', 'username', 'createdAt', 'updatedAt'],
     });
   }
-  async view(options: FindOneOptions<UsersEntity>['where']) {
+
+  async findBy(options: FindOneOptions<UsersEntity>['where']) {
     try {
-      console.log({ options });
       const user = await this.usersRepository.findOneOrFail({
-        select: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
+        select: ['id', 'username', 'createdAt', 'updatedAt'],
         where: {
           ...options,
         },
-        relations: {
-          books: true,
-          tags: true,
-          collections: true,
-          annotations: true,
-        },
       });
-      const lastAnnotation = {
-        id: '0',
-        bookId: '0',
-        annotation: 'Lorem ipsum',
-        owner: 'author',
-      };
-
-      return {
-        ...user,
-        lastAnnotation,
-      };
+      return user;
     } catch (err) {
       console.error(err);
-      throw new NotFoundException('User not found');
-    }
-  }
-  async findOne(options: FindOneOptions<UsersEntity>['where']) {
-    try {
-      return await this.usersRepository.findOneOrFail({
-        select: ['id', 'name', 'email', 'createdAt', 'updatedAt'],
-        where: options,
-      });
-    } catch (err) {
       throw new NotFoundException('User not found');
     }
   }
@@ -72,13 +45,12 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
   }
-
   async store(data: CreateUserDTO) {
     const alreadyRegistered = await this.usersRepository.findOneBy({
-      email: data.email,
+      username: data.username,
     });
     if (alreadyRegistered)
-      throw new BadRequestException(`Email ${data.email} already in use`);
+      throw new BadRequestException(`Username ${data.username} already in use`);
     const user = this.usersRepository.create(data);
     return await this.usersRepository.save(user);
   }
@@ -91,7 +63,6 @@ export class UsersService {
     await this.usersRepository.findOneOrFail({ where: { id } });
     await this.usersRepository.delete({ id });
   }
-
   async updateToken(id: string, refreshToken: string) {
     const user = await this.usersRepository.findOneOrFail({ where: { id } });
     this.usersRepository.merge(user, { refreshToken });

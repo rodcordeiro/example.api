@@ -1,14 +1,16 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { UsersService } from '@/modules/users/services/users.service';
+import { Injectable } from '@nestjs/common';
 import { compareSync } from 'bcrypt';
-import { UsersEntity } from '@/modules/users/entities/users.entity';
 import { JwtService } from '@nestjs/jwt';
+
+import { UsersService } from '@/modules/users/services/users.service';
+import { UsersEntity } from '@/modules/users/entities/users.entity';
 import { CreateUserDTO } from '@/modules/users/dto/create.dto';
 import { EncryptUtils } from '@/common/utils/encrypt.util';
 import DateManipulation from '@/common/utils/date.utils';
+
 interface JwtPayload {
   id: string;
-  email: string;
+  username: string;
 }
 
 @Injectable()
@@ -18,9 +20,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validate(email: string, password: string) {
+  async validate(username: string, password: string) {
     try {
-      const user = await this.usersService.validate({ email });
+      const user = await this.usersService.validate({ username });
       const validPassword = compareSync(password, user.password);
 
       if (!validPassword) return null;
@@ -30,11 +32,12 @@ export class AuthService {
       return null;
     }
   }
+
   async login(user: UsersEntity) {
     const payload = EncryptUtils.encrypt(
       {
         id: user.id,
-        email: user.email,
+        username: user.username,
       },
       process.env.ENC_SECRET,
     );
@@ -45,12 +48,13 @@ export class AuthService {
       authenticated: true,
     };
   }
+
   async register(payload: CreateUserDTO) {
     const user = await this.usersService.store(payload);
     const tokenPayload = EncryptUtils.encrypt(
       {
         id: user.id,
-        email: user.email,
+        username: user.username,
       },
       process.env.ENC_SECRET,
     );
@@ -72,12 +76,6 @@ export class AuthService {
       ...tokens,
       authenticated: true,
     };
-  }
-
-  async googleAuthenticate(payload: CreateUserDTO) {
-    const user = await this.validate(payload.email, payload.password);
-    if (user) return this.login(user);
-    return this.register(payload);
   }
 
   private getTokens(payload: string) {

@@ -2,12 +2,9 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
-import { JwtPayload } from 'jsonwebtoken';
+import { Jwt } from 'jsonwebtoken';
 import { EncryptUtils } from '@/common/utils/encrypt.util';
 
-interface IJwtPayload extends JwtPayload {
-  payload: string;
-}
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
@@ -21,8 +18,11 @@ export class RefreshTokenStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: IJwtPayload) {
-    const data = EncryptUtils.decrypt(payload.payload, process.env.ENC_SECRET);
-    return { id: data.id, email: data.email };
+  async validate(payload: Jwt) {
+    const data = EncryptUtils.decrypt(
+      payload.payload as string,
+      process.env.ENC_SECRET,
+    );
+    return { id: data.id, username: data.username };
   }
 }

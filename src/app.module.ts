@@ -19,13 +19,15 @@ import { SharedModule } from '@/modules/shared.module';
       database: process.env.DB_NAME,
       migrations: [__dirname + '/core/database/migrations/{.ts,*.js}'],
       entities: [__dirname + '/modules/*/entities/*.entity.js'],
-      synchronize: false,
-      migrationsRun: true,
+      synchronize: true,
+      debug: false,
     }),
-    ThrottlerModule.forRoot({
-      ttl: 30,
-      limit: 10,
-    }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 30,
+        limit: 10,
+      },
+    ]),
     HttpModule,
     SharedModule,
   ],

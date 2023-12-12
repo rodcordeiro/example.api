@@ -1,18 +1,11 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-export interface IAuthenticatedUser {
-  user: {
-    id: string;
-    email: string;
-  };
-}
-
 export namespace Authenticate {
-  export interface IAuthToken {
+  export type IAuthToken = {
     id: string;
-    email: string;
-  }
-  export interface IAuthenticatedUser {
+    username: string;
+  };
+  export type IAuthenticatedUser = {
     user: IAuthToken;
-  }
+  };
 }

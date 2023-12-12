@@ -1,11 +1,7 @@
-import { IsNotEmpty, IsEmail, Matches } from 'class-validator';
+import { IsNotEmpty, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { RegexHelper } from '@/helpers/regex.helper';
+import { RegexHelper } from '@/common/utils/regex.util';
 export class CreateUserDTO {
-  @ApiProperty()
-  @IsNotEmpty()
-  name: string;
-
   @ApiProperty()
   @IsNotEmpty()
   @Matches(RegexHelper.password, {
@@ -16,6 +12,5 @@ export class CreateUserDTO {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  username: string;
 }
